@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainy_beam_Task2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #file-input {
+            display: block;
+            margin: 20px 0;
+        }
+        #upload-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #upload-btn:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DataFrame Handler</h1>
+        <input type="file" id="file-input" accept=".csv">
+        <button id="upload-btn">Upload and Process</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('upload-btn').addEventListener('click', function() {
+            var fileInput = document.getElementById('file-input');
+            var file = fileInput.files[0];
+            if (file) {
+                var formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/upload/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('result').innerHTML = `<p style="color: red;">${data.error}</p>`;
+                    } else {
+                        var table = '<table><tr><th>Column 1</th><th>Column 2</th><th>Column 3</th><th>Date</th></tr>';
+                        data.data.forEach(row => {
+                            table += `<tr><td>${row.column1}</td><td>${row.column2}</td><td>${row.column3}</td><td>${row.date_field}</td></tr>`;
+                        });
+                        table += '</table>';
+                        document.getElementById('result').innerHTML = table;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('result').innerHTML = '<p style="color: red;">An error occurred while processing the file.</p>';
+                });
+            } else {
+                document.getElementById('result').innerHTML = '<p style="color: red;">Please select a file to upload.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
